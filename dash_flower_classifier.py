@@ -49,19 +49,23 @@ app.layout = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
+
     html.Div(id='output-image-upload'),
 ])
 
 
 def parse_contents(contents, filename, date):
+    #convert uploaded image file in Pillow image file
     encoded_image = contents.split(",")[1]
     decoded_image = base64.b64decode(encoded_image)
     bytes_image = BytesIO(decoded_image)
     image = Image.open(bytes_image).convert('RGB').resize(IMAGE_SHAPE)
+
+    #convert image into tensor
     tf_image = np.array(image)/255.0
-    #tf_image.shape
+
+    #predict
     result = model.predict(tf_image[np.newaxis, ...])
-    #result.shape
 
     df = pd.DataFrame({'class':labels, 'probability':result[0]})
     
@@ -98,4 +102,4 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
